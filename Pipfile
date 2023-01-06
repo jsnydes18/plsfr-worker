@@ -1,0 +1,16 @@
+[[source]]
+url = "https://github.com/jsnydes18/plsfr-worker"
+verify_ssl = true
+name = "plsfr-worker"
+
+[packages]
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3.11"
+
+[scripts]
+build = "pipenv install --deploy"
+build-dev = "pipenv install"
