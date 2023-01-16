@@ -25,11 +25,11 @@ class Spotify:
             headers=headers
         )
 
-        print('"token" request sent: { }')
+        # print('"token" request sent: { }')
         res = urlopen(req)
         return loads(res.read().decode('utf-8'))['access_token']
 
-    def search(self, q, type, offset=0, limit=20):
+    def search(self, q, type, offset=0, limit=50):
         params = urlencode([
             ('q', q),
             ('type', type),
@@ -46,6 +46,6 @@ class Spotify:
             headers=headers
         )
 
-        print(f'"search" request sent: {params}')
+        # print(f'"search" request sent: {params}')
         res = urlopen(req)
         return loads(res.read().decode('utf-8'))

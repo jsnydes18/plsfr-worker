@@ -1,9 +1,10 @@
 [[source]]
-url = "https://github.com/jsnydes18/plsfr-worker"
+url = "https://pypi.org/simple"
 verify_ssl = true
-name = "plsfr-worker"
+name = "pypi"
 
 [packages]
+boto3 = "*"
 
 [dev-packages]
 pytest = "*"
