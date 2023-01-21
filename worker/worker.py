@@ -41,17 +41,12 @@ def upload_results(ddb, msgId, results, pageNum):
         'pageNum': str(pageNum),
         'playlists': results
     }
-    serializer = boto3.dynamodb.types.TypeSerializer()
-    ddb_item = serializer.serialize(item)
-    print(ddb_item['M'])
     response = table.put_item(
-        # Item=ddb_item['M'],
         Item=item,
         ReturnValues='NONE',
         ReturnConsumedCapacity='NONE',
         ReturnItemCollectionMetrics='NONE'
     )
-    print(response)
     return response
 
 
@@ -79,11 +74,11 @@ def main():
         if queries:
             spotify = Spotify(client_id, client_secret)
             for query in queries:
+                print(f"Processing Query - {query[0]}: {query[1]}")
                 thread_number = 0
                 results = direct_search(query[1], spotify)
-                print(results)
                 upload_results(ddb, query[0], results, thread_number)
-        break
+                print(f"Query Processing Completed - Thread: {thread_number} - {query[0]}: {query[1]}")
     return
 
 if __name__ == '__main__':
