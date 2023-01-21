@@ -52,7 +52,6 @@ def upload_results(ddb, msgId, results, pageNum):
 
 
 def read_queue(sqs):
-    # TODO Need to extract the Message ID along with Body for publishing to DDB
     queue = sqs.Queue('https://sqs.us-east-2.amazonaws.com/677532242987/submitq')
     queries = []
     msgs = queue.receive_messages(MaxNumberOfMessages=10)
