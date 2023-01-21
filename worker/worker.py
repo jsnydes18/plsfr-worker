@@ -29,8 +29,32 @@ def direct_search(query, api):
                     'links': [i for i in re.findall(URL_REGEX, playlist['description']) if i]
                 }
             }
-            discovered.append(item.copy())
+            if item['ownerDetails']['email'] or item['ownerDetails']['handles'] or item['ownerDetails']['links']:
+                discovered.append(item.copy())
     return discovered
+
+
+def upload_results(ddb, msgId, results, pageNum):
+    table = ddb.Table('pullTable')
+    item = {
+        'msgId': msgId,
+        'pageNum': str(pageNum),
+        'playlists': results
+    }
+    serializer = boto3.dynamodb.types.TypeSerializer()
+    ddb_item = serializer.serialize(item)
+    print(ddb_item['M'])
+    response = table.put_item(
+        # Item=ddb_item['M'],
+        Item=item,
+        ReturnValues='NONE',
+        ReturnConsumedCapacity='NONE',
+        ReturnItemCollectionMetrics='NONE'
+    )
+    print(response)
+    return response
+
+
 
 def read_queue(sqs):
     # TODO Need to extract the Message ID along with Body for publishing to DDB
@@ -38,7 +62,8 @@ def read_queue(sqs):
     queries = []
     msgs = queue.receive_messages(MaxNumberOfMessages=10)
     for msg in msgs:
-        queries.append(msg.body)
+        # [0] = msgId, [1] = body
+        queries.append((msg.message_id, msg.body))
         msg.delete()
     return queries
 
@@ -47,14 +72,17 @@ def main():
     client_id = os.environ.get('spApiClientId')
     client_secret = os.environ.get('spApiClientSecret')
     sqs = boto3.resource('sqs')
+    ddb = boto3.resource('dynamodb')
 
     while(True):
         queries = read_queue(sqs)
-        print(queries)
         if queries:
             spotify = Spotify(client_id, client_secret)
             for query in queries:
-                results = direct_search(query, spotify)
+                thread_number = 0
+                results = direct_search(query[1], spotify)
+                print(results)
+                upload_results(ddb, query[0], results, thread_number)
         break
     return
 
